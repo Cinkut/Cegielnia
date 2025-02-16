@@ -48,7 +48,7 @@ int recive_message(int mesg_queue_ID, struct message *msg_ptr,int message_type, 
 }
 
 
-void delete_meesage_queue(int mesg_queue_ID)
+void delete_message_queue(int mesg_queue_ID)
 {
 	if ( msgctl(mesg_queue_ID, IPC_RMID, NULL) == -1 )
 	{
