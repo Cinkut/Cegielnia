@@ -31,11 +31,11 @@ int main()
         if (sprawdzCzyMoznaWrzucicCegle(tasma, K, MasaCegly, M))
         {
             wrzucCegleNaTasme(tasma, K, MasaCegly);
-            printf("[%d] P1 ~ Wrzuciłem cegłe o masie %dkg na taśme.\n", getpid(), MasaCegly);
+            printf("\033[1;34m[%d] P1 ~ Wrzuciłem cegłe o masie %dkg na taśme.\033[0m\n", getpid(), MasaCegly);
             sleep(T1);
         }
         signal_semafor(semaforTasmy, 0, 0);
     }
-
+    printf("\033[1;34m[%d] P1 ~ Kończę pracę na dziś.\033[0m\n", getpid());
     return 0;
 }

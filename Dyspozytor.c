@@ -15,7 +15,7 @@ struct message CiezarowkaOdjechala = { .mtype = 7 };
 
 void sygnalDyspozytoraJeden_handler(int singal)
 {
-    printf("[%d] Dyspozytor ~ Szybszy odjazd ciężarówki.\n", getpid());
+    printf("\033[1;31m[%d] Dyspozytor ~ Szybszy odjazd ciężarówki.\033[0m\n", getpid());
     printf("%d\n", pidZaladowywanejCiezarowki);
     kill(pidZaladowywanejCiezarowki, SIGUSR1);
 }
@@ -42,10 +42,10 @@ int main()
     signal(SIGUSR1, sygnalDyspozytoraJeden_handler);
     signal(SIGUSR2, sygnalDyspozytoraDwa_handler);
 
-    printf("[%d] Dyspozytor ~ Cegielnia rozpoczyna pracę.\n", getpid());
+    printf("\033[1;31m[%d] Dyspozytor ~ Cegielnia rozpoczyna pracę.\033[0m\n", getpid());
     while (PracaTrwa)
     {
-        printf("[%d] Dyspozytor ~ Ciężarówka może wjeżdżać.\n", getpid());
+        printf("\033[1;31m[%d] Dyspozytor ~ Ciężarówka może wjeżdżać.\033[0m\n", getpid());
         send_message(kolejkaKomunikatow, &CiezarowkaMozeWjechac, 0);
         recive_message(kolejkaKomunikatow, &CiezarowkaWjechala, 6, 0);
         pidZaladowywanejCiezarowki = CiezarowkaWjechala.pidProcesu;
@@ -67,7 +67,7 @@ int main()
     free_semafor(semaforTasmy);
     free_shared_memory(sharedMemoryID);
 
-    printf("[%d] Dyspozytor ~ Cegielnia zakończyła pracę.\n", getpid());
+    printf("\033[1;31m[%d] Dyspozytor ~ Cegielnia zakończyła pracę.\033[0m\n", getpid());
 
     return 0;
 }

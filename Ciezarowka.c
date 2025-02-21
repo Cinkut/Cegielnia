@@ -14,7 +14,7 @@ struct message CiezarowkaOdjechala = { .mtype = 7 };
 
 void sygnalDyspozytoraJeden_handler(int singal)
 {
-    printf("[%d] Ciężarówka ~ Odebrałem sygnał SIGUSR1.\n", getpid());
+    printf("\033[1;32m[%d] Ciężarówka ~ Odebrałem sygnał SIGUSR1.\033[0m\n", getpid());
     ZaladunekTrwa = 0;
 }
 
@@ -41,7 +41,7 @@ int main()
             if (!PracaTrwa)
                 break;
 
-        printf("[%d] Ciężarówka ~ Wjeżdżam.\n", getpid());
+        printf("\033[1;32m[%d] Ciężarówka ~ Wjeżdżam.\033[0m\n", getpid());
         ZaladunekTrwa = 1;
         int miejsceKolejnejCeglyWkontenerze = 0;
         send_message(kolejkaKomunikatow, &CiezarowkaWjechala, 0);
@@ -55,7 +55,7 @@ int main()
             while (czyJestCoSciagacZtasmy(tasma, K))
             {
                 kontenerCiezarowki[miejsceKolejnejCeglyWkontenerze] = sciagnijCegle(tasma, K);
-                printf("[%d] Ciezarowka ~ Załadowano cegłe o masie %d.\n", getpid(), kontenerCiezarowki[miejsceKolejnejCeglyWkontenerze]);
+                printf("\033[1;32m[%d] Ciezarowka ~ Załadowano cegłe o masie %d.\033[0m\n", getpid(), kontenerCiezarowki[miejsceKolejnejCeglyWkontenerze]);
                 miejsceKolejnejCeglyWkontenerze++;
             }
             signal_semafor(semaforTasmy, 0, 0);
@@ -63,11 +63,11 @@ int main()
             if (miejsceKolejnejCeglyWkontenerze > C)
                 ZaladunekTrwa = 0;
         }
-        printf("[%d] Ciężarówka ~ Odjeżdżam.\n", getpid());
+        printf("\033[1;32m[%d] Ciężarówka ~ Odjeżdżam.\033[0m\n", getpid());
         send_message(kolejkaKomunikatow, &CiezarowkaOdjechala, 0);
 
         sleep(T);       // Rozwozenie Cegieł
-        printf("[%d] Ciężarówka ~ Rozwiozłam cegły.\n", getpid());
+        printf("\033[1;32m[%d] Ciężarówka ~ Rozwiozłam cegły.\033[0m\n", getpid());
         
     }
     return 0;
