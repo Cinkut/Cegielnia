@@ -9,6 +9,8 @@
 #define T 10           // Czas pod którym ciężarówce udaje się rozwieść cegły i wrócić do cegielni
 
 #define K 3             // Maksymalna ilość cegieł jaką może przetransportować naraz taśma
-#define M 8             // Maksymalna łączna masa cegieł jaką może przetransportować naraz taśma
+#define M 8            // Maksymalna łączna masa cegieł jaką może przetransportować naraz taśma
+
+#define T1 1           // Czas co ktory wrzucaja cegly
 
 #define LiczbaPracownikow 3

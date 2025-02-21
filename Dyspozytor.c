@@ -36,6 +36,9 @@ int main()
     int sharedMemoryID = create_shared_memory(".", 'B', K, IPC_CREAT | 0600);
     int* tasma = (int*)attach_shared_memory(sharedMemoryID, NULL, 0);
 
+    int semaforTasmy = create_semafor(".", 'C', 1, IPC_CREAT | 0600);
+    initialize_semafor(semaforTasmy, 0, 1);
+
     signal(SIGUSR1, sygnalDyspozytoraJeden_handler);
     signal(SIGUSR2, sygnalDyspozytoraDwa_handler);
 
@@ -53,6 +56,7 @@ int main()
 
     delete_message_queue(kolejkaKomunikatow);
     detach_shared_memory(tasma, sharedMemoryID);
+    free_semafor(semaforTasmy);
     free_shared_memory(sharedMemoryID);
 
     printf("[%d] Dyspozytor ~ Cegielnia zakończyła pracę.\n", getpid());
