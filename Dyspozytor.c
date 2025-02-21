@@ -4,17 +4,20 @@
 #include "Funkcje/FunkcjeSemafory.h"
 
 int PracaTrwa = 1;
-
+int pidZaladowywanejCiezarowki;
 struct message PracownicyGotowi = { .mtype = 1 };
 struct message CiezarowkiGotowe = { .mtype = 2 };
 struct message PracownicySkonczyliPrace = { .mtype = 3 };
 struct message CiezarowkiSkonczylyPrace = { .mtype = 4 };
 struct message CiezarowkaMozeWjechac = { .mtype = 5 };
 struct message CiezarowkaWjechala = { .mtype = 6 };
+struct message CiezarowkaOdjechala = { .mtype = 7 };
 
 void sygnalDyspozytoraJeden_handler(int singal)
 {
-
+    printf("[%d] Dyspozytor ~ Szybszy odjazd ciężarówki.\n", getpid());
+    printf("%d\n", pidZaladowywanejCiezarowki);
+    kill(pidZaladowywanejCiezarowki, SIGUSR1);
 }
 
 void sygnalDyspozytoraDwa_handler(int signal)
@@ -39,7 +42,13 @@ int main()
     printf("[%d] Dyspozytor ~ Cegielnia rozpoczyna pracę.\n", getpid());
     while (PracaTrwa)
     {
+        printf("[%d] Dyspozytor ~ Ciężarówka może wjeżdżać.\n", getpid());
+        send_message(kolejkaKomunikatow, &CiezarowkaMozeWjechac, 0);
+        recive_message(kolejkaKomunikatow, &CiezarowkaWjechala, 6, 0);
+        pidZaladowywanejCiezarowki = CiezarowkaWjechala.pidProcesu;
 
+        while (recive_message(kolejkaKomunikatow, &CiezarowkaOdjechala, 7, 0))
+            continue;
     }
 
     delete_message_queue(kolejkaKomunikatow);

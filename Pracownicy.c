@@ -25,6 +25,7 @@ int main()
     }
 
     int kolejkaKomunikatow = create_message_queue(".", 'A', IPC_CREAT | 0600);
+    printf("[%d] Pracownicy ~ Pracownicy Gotowi.\n", getpid());
     send_message(kolejkaKomunikatow, &PracownicyGotowi, 0);
 
     return 0;

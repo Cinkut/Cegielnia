@@ -10,7 +10,7 @@
 struct message
 {
 	long mtype;
-	char content[20];
+	int pidProcesu;
 };
 
 

@@ -22,6 +22,8 @@ int main()
     }
 
     int kolejkaKomunikatow = create_message_queue(".", 'A', IPC_CREAT | 0600);
+
+    printf("[%d] Ciezarowki ~ Ciezarowki Gotowe!\n", getpid());
     send_message(kolejkaKomunikatow, &CiezarowkiGotowe, 0);
     
     return 0;
