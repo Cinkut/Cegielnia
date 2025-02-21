@@ -18,6 +18,12 @@ void sygnalDyspozytoraJeden_handler(int singal)
     ZaladunekTrwa = 0;
 }
 
+void sygnalDyspozytoraDwa_handler(int signal)
+{
+    PracaTrwa = 0;
+    ZaladunekTrwa = 0;
+}
+
 int main()
 {
     int kolejkaKomunikatow = create_message_queue(".", 'A', IPC_CREAT | 0600);
@@ -31,7 +37,10 @@ int main()
 
     while (PracaTrwa)
     {
-        recive_message(kolejkaKomunikatow, &CiezarowkaMozeWjechac, 5, 0);
+        while (recive_message(kolejkaKomunikatow, &CiezarowkaMozeWjechac, 5, 0))
+            if (!PracaTrwa)
+                break;
+
         printf("[%d] Ciężarówka ~ Wjeżdżam.\n", getpid());
         ZaladunekTrwa = 1;
         int miejsceKolejnejCeglyWkontenerze = 0;
@@ -39,7 +48,10 @@ int main()
 
         while (ZaladunekTrwa)
         {
-            wait_semafor(semaforTasmy, 0, 0);
+            while (wait_semafor(semaforTasmy, 0, 0))
+            if (!PracaTrwa)
+                break;
+            
             while (czyJestCoSciagacZtasmy(tasma, K))
             {
                 kontenerCiezarowki[miejsceKolejnejCeglyWkontenerze] = sciagnijCegle(tasma, K);
@@ -51,9 +63,12 @@ int main()
             if (miejsceKolejnejCeglyWkontenerze > C)
                 ZaladunekTrwa = 0;
         }
-
         printf("[%d] Ciężarówka ~ Odjeżdżam.\n", getpid());
         send_message(kolejkaKomunikatow, &CiezarowkaOdjechala, 0);
+
+        sleep(T);       // Rozwozenie Cegieł
+        printf("[%d] Ciężarówka ~ Rozwiozłam cegły.\n", getpid());
+        
     }
     return 0;
 }

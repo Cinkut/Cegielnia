@@ -8,15 +8,26 @@
 int PracaTrwa = 1;
 
 
+void sygnalDyspozytoraDwa_handler(int signal)
+{
+    PracaTrwa = 0;
+}
+
+
 int main()
 {
     int sharedMemoryID = create_shared_memory(".", 'B', K, IPC_CREAT | 0600);
     int* tasma = (int*)attach_shared_memory(sharedMemoryID, NULL, 0);
     int semaforTasmy = create_semafor(".", 'C', 1, IPC_CREAT | 0600);
 
+    signal(SIGUSR2, sygnalDyspozytoraDwa_handler);
+
     while (PracaTrwa)
     {
-        wait_semafor(semaforTasmy, 0, 0);
+        while (wait_semafor(semaforTasmy, 0, 0))
+            if (!PracaTrwa)
+                break;
+            
         if (sprawdzCzyMoznaWrzucicCegle(tasma, K, MasaCegly, M))
         {
             wrzucCegleNaTasme(tasma, K, MasaCegly);

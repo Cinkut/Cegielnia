@@ -51,8 +51,16 @@ int main()
         pidZaladowywanejCiezarowki = CiezarowkaWjechala.pidProcesu;
 
         while (recive_message(kolejkaKomunikatow, &CiezarowkaOdjechala, 7, 0))
+        {
+            if (!PracaTrwa)
+                break;
             continue;
+        }
     }
+    kill(-(PracownicyGotowi.pidProcesu), SIGUSR2);
+    kill(-(CiezarowkiGotowe.pidProcesu), SIGUSR2);
+    recive_message(kolejkaKomunikatow, &PracownicySkonczyliPrace, 3, 0);
+    recive_message(kolejkaKomunikatow, &CiezarowkiSkonczylyPrace, 4, 9);
 
     delete_message_queue(kolejkaKomunikatow);
     detach_shared_memory(tasma, sharedMemoryID);
