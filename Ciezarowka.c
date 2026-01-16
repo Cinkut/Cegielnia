@@ -54,14 +54,18 @@ int main()
             
             while (czyJestCoSciagacZtasmy(tasma, K))
             {
+		    if(miejsceKolejnejCeglyWkontenerze >= C){
+			    ZaladunekTrwa=0;
+			    break;
+		    }
+
                 kontenerCiezarowki[miejsceKolejnejCeglyWkontenerze] = sciagnijCegle(tasma, K);
                 printf("\033[1;32m[%d] Ciezarowka ~ Załadowano cegłe o masie %d.\033[0m\n", getpid(), kontenerCiezarowki[miejsceKolejnejCeglyWkontenerze]);
                 miejsceKolejnejCeglyWkontenerze++;
             }
-            signal_semafor(semaforTasmy, 0, 0);
-
-            if (miejsceKolejnejCeglyWkontenerze > C)
-                ZaladunekTrwa = 0;
+            while(signal_semafor(semaforTasmy, 0, 0))
+                if(!PracaTrwa)
+                    break;
         }
         printf("\033[1;32m[%d] Ciężarówka ~ Odjeżdżam.\033[0m\n", getpid());
         send_message(kolejkaKomunikatow, &CiezarowkaOdjechala, 0);

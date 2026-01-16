@@ -46,7 +46,7 @@ int wait_semafor(int sem_id, int number, int flags)
 }
 
 
-void signal_semafor(int sem_id, int number, int flags)
+int signal_semafor(int sem_id, int number, int flags)
 {
     struct sembuf semafor_operations;
     semafor_operations.sem_num = number;
@@ -55,9 +55,9 @@ void signal_semafor(int sem_id, int number, int flags)
 
     if (semop(sem_id, &semafor_operations, 1) == -1 )
     {
-        perror("Semop Signal Failed");
-        exit(4);
+       return 1;
     }
+    return 0;
 }
 
 
