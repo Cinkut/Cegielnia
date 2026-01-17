@@ -24,7 +24,7 @@ int create_shared_memory(const char *path, int identifier, size_t memory_amount,
 void* attach_shared_memory(int shm_id, const void* shm_adress, int flags)
 {	
 	void* shared_memory_adress = shmat(shm_id, shm_adress, flags);
-	if (*(int*)shared_memory_adress == -1 )
+	if (shared_memory_adress == (void*)-1)
 	{
 		perror("Shmat failed");
 		free_shared_memory(shm_id);

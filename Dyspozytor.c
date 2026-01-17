@@ -15,8 +15,6 @@ struct message CiezarowkaOdjechala = { .mtype = 7 };
 
 void sygnalDyspozytoraJeden_handler(int singal)
 {
-    printf("\033[1;31m[%d] Dyspozytor ~ Szybszy odjazd ciężarówki.\033[0m\n", getpid());
-    printf("%d\n", pidZaladowywanejCiezarowki);
     kill(pidZaladowywanejCiezarowki, SIGUSR1);
 }
 
@@ -33,7 +31,7 @@ int main()
     recive_message(kolejkaKomunikatow, &PracownicyGotowi, 1, 0);
     recive_message(kolejkaKomunikatow, &CiezarowkiGotowe, 2, 0);
     
-    int sharedMemoryID = create_shared_memory(".", 'B', K, IPC_CREAT | 0600);
+    int sharedMemoryID = create_shared_memory(".", 'B', K * sizeof(int), IPC_CREAT | 0600);
     int* tasma = (int*)attach_shared_memory(sharedMemoryID, NULL, 0);
 
     int semaforTasmy = create_semafor(".", 'C', 1, IPC_CREAT | 0600);

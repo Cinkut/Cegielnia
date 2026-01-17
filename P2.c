@@ -16,7 +16,7 @@ void sygnalDyspozytoraDwa_handler(int signal)
 
 int main()
 {
-    int sharedMemoryID = create_shared_memory(".", 'B', K, IPC_CREAT | 0600);
+    int sharedMemoryID = create_shared_memory(".", 'B', K * sizeof(int), IPC_CREAT | 0600);
     int* tasma = (int*)attach_shared_memory(sharedMemoryID, NULL, 0);
     int semaforTasmy = create_semafor(".", 'C', 1, IPC_CREAT | 0600);
 
