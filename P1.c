@@ -5,7 +5,7 @@
 #include "Funkcje/FunkcjeObslugiTasmy.h"
 
 #define MasaCegly 1
-int PracaTrwa = 1;
+static volatile sig_atomic_t PracaTrwa = 1;
 
 
 void sygnalDyspozytoraDwa_handler(int signal)

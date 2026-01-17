@@ -52,7 +52,7 @@ int main()
         }
     }
     int kolejkaKomunikatow = create_message_queue(".", 'A', IPC_CREAT | 0600);
-    printf("[%d] Ciężarówki ~ Ciężarówki Gotowe!\n", getpid());
+    printf("\033[1;32m[%d] Ciężarówki ~ Ciężarówki Gotowe!\033[0m\n", getpid());
     CiezarowkiGotowe.pidProcesu = (int)getpgrp();
     send_message(kolejkaKomunikatow, &CiezarowkiGotowe, 0);
     
@@ -64,7 +64,7 @@ int main()
 		exit(7);
 	}
 
-    printf("[%d] Ciezarowki ~ Ciezarowki Zakończyły Pracę!\n", getpid());
+    printf("\033[1;32m[%d] Ciezarowki ~ Ciezarowki Zakończyły Pracę!\033[0m\n", getpid());
     send_message(kolejkaKomunikatow, &CiezarowkiSkonczylyPrace, 0);
 
     return 0;

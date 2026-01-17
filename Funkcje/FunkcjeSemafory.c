@@ -68,7 +68,7 @@ void free_semafor(int sem_id)
 		return; 
 	}
 
-    if (semctl(sem_id, 69, IPC_RMID) == -1 )
+    if (semctl(sem_id, 0, IPC_RMID) == -1 )
     {
         perror("Semtcl IPC_RMID error");
         exit(6);

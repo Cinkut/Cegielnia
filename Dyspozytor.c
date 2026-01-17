@@ -3,7 +3,7 @@
 #include "Funkcje/FunkcjeKolejkiKomunikatow.h"
 #include "Funkcje/FunkcjeSemafory.h"
 
-int PracaTrwa = 1;
+static volatile sig_atomic_t PracaTrwa = 1;
 int pidZaladowywanejCiezarowki;
 struct message PracownicyGotowi = { .mtype = 1 };
 struct message CiezarowkiGotowe = { .mtype = 2 };
@@ -60,7 +60,7 @@ int main()
     kill(-(PracownicyGotowi.pidProcesu), SIGUSR2);
     kill(-(CiezarowkiGotowe.pidProcesu), SIGUSR2);
     recive_message(kolejkaKomunikatow, &PracownicySkonczyliPrace, 3, 0);
-    recive_message(kolejkaKomunikatow, &CiezarowkiSkonczylyPrace, 4, 9);
+    recive_message(kolejkaKomunikatow, &CiezarowkiSkonczylyPrace, 4, 0);
 
     delete_message_queue(kolejkaKomunikatow);
     detach_shared_memory(tasma, sharedMemoryID);

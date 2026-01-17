@@ -5,8 +5,8 @@
 #include "Funkcje/FunkcjeObslugiTasmy.h"
 
 
-int ZaladunekTrwa = 0;
-int PracaTrwa = 1;
+static volatile sig_atomic_t ZaladunekTrwa = 0;
+static volatile sig_atomic_t PracaTrwa = 1;
 struct message CiezarowkaMozeWjechac = { .mtype = 5 };
 struct message CiezarowkaWjechala = { .mtype = 6 };
 struct message CiezarowkaOdjechala = { .mtype = 7 };

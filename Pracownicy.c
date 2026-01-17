@@ -58,7 +58,7 @@ int main()
 
     int kolejkaKomunikatow = create_message_queue(".", 'A', IPC_CREAT | 0600);
     PracownicyGotowi.pidProcesu = (int)getpgrp();
-    printf("[%d] Pracownicy ~ Pracownicy Gotowi.\n", getpid());
+    printf("\033[1;34m[%d] Pracownicy ~ Pracownicy Gotowi.\033[0m\n", getpid());
     send_message(kolejkaKomunikatow, &PracownicyGotowi, 0);
 
     signal(SIGUSR2, ignore_signal);
@@ -70,7 +70,7 @@ int main()
 	}
 
 
-    printf("[%d] Pracownicy ~ Pracownicy Zakończyli Pracę!\n", getpid());
+    printf("\033[1;34m[%d] Pracownicy ~ Pracownicy Zakończyli Pracę!\033[0m\n", getpid());
     send_message(kolejkaKomunikatow, &PracownicySkonczyliPrace, 0);
 
     return 0;
