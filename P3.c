@@ -36,6 +36,6 @@ int main()
         }
         signal_semafor(semaforTasmy, 0, 0);
     }
-    printf("\033[1;34m[%d] P1 ~ Kończę pracę na dziś.\033[0m\n", getpid());
+    printf("\033[1;34m[%d] P3 ~ Kończę pracę na dziś.\033[0m\n", getpid());
     return 0;
 }

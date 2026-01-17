@@ -7,7 +7,7 @@ struct message PracownicyGotowi = { .mtype = 1 };
 struct message PracownicySkonczyliPrace = { .mtype = 3 };
 
 
-void* collectZombie()
+void* collectZombie(void *arg)
 {
 	int zombieCounter = 0;
 	while (zombieCounter != LiczbaPracownikow)

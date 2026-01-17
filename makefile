@@ -4,13 +4,13 @@ Dyspozytor:
 	gcc Dyspozytor.c Funkcje/FunkcjeKolejkiKomunikatow.c Funkcje/FunkcjePamieciDzielonej.c Funkcje/FunkcjeSemafory.c -o Dyspozytor
 
 Ciezarowki:
-	gcc Ciezarowki.c Funkcje/FunkcjeKolejkiKomunikatow.c Funkcje/FunkcjePamieciDzielonej.c Funkcje/FunkcjeSemafory.c -o Ciezarowki
+	gcc Ciezarowki.c Funkcje/FunkcjeKolejkiKomunikatow.c Funkcje/FunkcjePamieciDzielonej.c Funkcje/FunkcjeSemafory.c -o Ciezarowki -pthread
 
 Ciezarowka:
 	gcc Ciezarowka.c Funkcje/FunkcjeKolejkiKomunikatow.c Funkcje/FunkcjePamieciDzielonej.c Funkcje/FunkcjeSemafory.c Funkcje/FunkcjeObslugiTasmy.c -o Ciezarowka
 
 Pracownicy:
-	gcc Pracownicy.c Funkcje/FunkcjeKolejkiKomunikatow.c Funkcje/FunkcjePamieciDzielonej.c Funkcje/FunkcjeSemafory.c -o Pracownicy
+	gcc Pracownicy.c Funkcje/FunkcjeKolejkiKomunikatow.c Funkcje/FunkcjePamieciDzielonej.c Funkcje/FunkcjeSemafory.c -o Pracownicy -pthread
 
 P1:
 	gcc P1.c Funkcje/FunkcjeKolejkiKomunikatow.c Funkcje/FunkcjePamieciDzielonej.c Funkcje/FunkcjeSemafory.c Funkcje/FunkcjeObslugiTasmy.c -o P1

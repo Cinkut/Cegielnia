@@ -6,7 +6,7 @@
 struct message CiezarowkiGotowe = { .mtype = 2 };
 struct message CiezarowkiSkonczylyPrace = { .mtype = 4 };
 
-void* collectZombie()
+void* collectZombie(void *arg)
 {
 	int zombieCounter = 0;
 	while (zombieCounter != N)
