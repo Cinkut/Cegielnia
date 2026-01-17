@@ -33,7 +33,6 @@ int main()
     int kontenerCiezarowki[C];
 
     signal(SIGUSR1, sygnalDyspozytoraJeden_handler);
-    signal(SIGUSR2, sygnalDyspozytoraDwa_handler);
 
     while (PracaTrwa)
     {
