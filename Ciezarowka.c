@@ -23,6 +23,7 @@ void sygnalDyspozytoraDwa_handler(int signal)
     ZaladunekTrwa = 0;
 }
 
+// Proces ciężarówki: odbiera cegły z taśmy i odjeżdża po zapełnieniu kontenera.
 int main()
 {
     int kolejkaKomunikatow = create_message_queue(".", 'A', IPC_CREAT | 0600);
@@ -47,6 +48,7 @@ int main()
 
         while (ZaladunekTrwa)
         {
+            // Sekcja krytyczna taśmy sterowana semaforem.
             while (wait_semafor(semaforTasmy, 0, 0))
             if (!PracaTrwa)
                 break;

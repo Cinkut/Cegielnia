@@ -6,6 +6,7 @@
 struct message CiezarowkiGotowe = { .mtype = 2 };
 struct message CiezarowkiSkonczylyPrace = { .mtype = 4 };
 
+// Wątek sprzątający zakończone procesy ciężarówek.
 void* collectZombie(void *arg)
 {
 	int zombieCounter = 0;
@@ -25,6 +26,7 @@ void ignore_signal(int sig)
 int main()
 {
     pid_t parent_pid = getpid();
+    // Tworzy grupę procesów ciężarówek, aby łatwo wysyłać sygnały.
 	if (setpgid(parent_pid, parent_pid) == -1) 
 	{
     	perror("setpgid (parent) failed");
@@ -51,11 +53,13 @@ int main()
                 exit(2);
         }
     }
+    // Informuje dyspozytora, że ciężarówki są gotowe.
     int kolejkaKomunikatow = create_message_queue(".", 'A', IPC_CREAT | 0600);
     printf("\033[1;32m[%d] Ciężarówki ~ Ciężarówki Gotowe!\033[0m\n", getpid());
     CiezarowkiGotowe.pidProcesu = (int)getpgrp();
     send_message(kolejkaKomunikatow, &CiezarowkiGotowe, 0);
     
+    // Rodzic ignoruje SIGUSR2, dzieci kończą pracę po sygnale od dyspozytora.
     signal(SIGUSR2, ignore_signal);
 
     if (pthread_join(zombieCollector, NULL) != 0)

@@ -23,12 +23,14 @@ void ignore_signal(int sig)
 }
 
 
+// Proces nadrzędny uruchamiający pracowników P1/P2/P3.
 int main()
 {
     char *komendy[] = { "./P1", "./P2", "./P3" };
     char *nazwyProcesow[] = { "P1", "P2", "P3" };
 
     pid_t parent_pid = getpid();
+    // Wspólna grupa procesów do sterowania sygnałami.
 	if (setpgid(parent_pid, parent_pid) == -1) 
 	{
     	perror("setpgid (parent) failed");
@@ -56,6 +58,7 @@ int main()
         }
     }
 
+    // Informuje dyspozytora o gotowości pracowników.
     int kolejkaKomunikatow = create_message_queue(".", 'A', IPC_CREAT | 0600);
     PracownicyGotowi.pidProcesu = (int)getpgrp();
     printf("\033[1;34m[%d] Pracownicy ~ Pracownicy Gotowi.\033[0m\n", getpid());

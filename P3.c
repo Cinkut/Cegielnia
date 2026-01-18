@@ -7,6 +7,7 @@
 #define MasaCegly 3
 static volatile sig_atomic_t PracaTrwa = 1;
 
+// Pracownik P3 wrzuca cegły o masie 3 kg na taśmę.
 
 void sygnalDyspozytoraDwa_handler(int signal)
 {
@@ -24,6 +25,7 @@ int main()
 
     while (PracaTrwa)
     {
+        // Zajmuje semafor taśmy i sprawdza limit masy.
         while (wait_semafor(semaforTasmy, 0, 0))
             if (!PracaTrwa)
                 break;
