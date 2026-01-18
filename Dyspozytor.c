@@ -3,8 +3,11 @@
 #include "Funkcje/FunkcjeKolejkiKomunikatow.h"
 #include "Funkcje/FunkcjeSemafory.h"
 
+// Flaga czy cegielnia pracuje
 static volatile sig_atomic_t PracaTrwa = 1;
+// PID ciężarówki aktualnie przy taśmie
 int pidZaladowywanejCiezarowki;
+// Typy komunikatów do synchronizacji procesów
 struct message PracownicyGotowi = { .mtype = 1 };
 struct message CiezarowkiGotowe = { .mtype = 2 };
 struct message PracownicySkonczyliPrace = { .mtype = 3 };
@@ -13,11 +16,13 @@ struct message CiezarowkaMozeWjechac = { .mtype = 5 };
 struct message CiezarowkaWjechala = { .mtype = 6 };
 struct message CiezarowkaOdjechala = { .mtype = 7 };
 
+// Obsługa SIGUSR1 - wyślij ciężarówkę z niepełnym ładunkiem
 void sygnalDyspozytoraJeden_handler(int singal)
 {
     kill(pidZaladowywanejCiezarowki, SIGUSR1);
 }
 
+// Obsługa SIGUSR2 - zakończ pracę cegielni
 void sygnalDyspozytoraDwa_handler(int signal)
 {
     PracaTrwa = 0;
@@ -26,28 +31,36 @@ void sygnalDyspozytoraDwa_handler(int signal)
 
 int main()
 {
+    // Tworzenie kolejki komunikatów do synchronizacji
     int kolejkaKomunikatow = create_message_queue(".", 'A', IPC_CREAT | 0600);
 
+    // Czekamy aż pracownicy i ciężarówki będą gotowe
     recive_message(kolejkaKomunikatow, &PracownicyGotowi, 1, 0);
     recive_message(kolejkaKomunikatow, &CiezarowkiGotowe, 2, 0);
     
+    // Tworzenie pamięci dzielonej dla taśmy (K cegieł)
     int sharedMemoryID = create_shared_memory(".", 'B', K * sizeof(int), IPC_CREAT | 0600);
     int* tasma = (int*)attach_shared_memory(sharedMemoryID, NULL, 0);
 
+    // Tworzenie semafora do ochrony dostępu do taśmy
     int semaforTasmy = create_semafor(".", 'C', 1, IPC_CREAT | 0600);
     initialize_semafor(semaforTasmy, 0, 1);
 
+    // Rejestracja obsługi sygnałów
     signal(SIGUSR1, sygnalDyspozytoraJeden_handler);
     signal(SIGUSR2, sygnalDyspozytoraDwa_handler);
 
     printf("\033[1;31m[%d] Dyspozytor ~ Cegielnia rozpoczyna pracę.\033[0m\n", getpid());
+    // Główna pętla zarządzania ciężarówkami
     while (PracaTrwa)
     {
+        // Zezwalamy na wjazd kolejnej ciężarówki
         printf("\033[1;31m[%d] Dyspozytor ~ Ciężarówka może wjeżdżać.\033[0m\n", getpid());
         send_message(kolejkaKomunikatow, &CiezarowkaMozeWjechac, 0);
         recive_message(kolejkaKomunikatow, &CiezarowkaWjechala, 6, 0);
-        pidZaladowywanejCiezarowki = CiezarowkaWjechala.pidProcesu;
+        pidZaladowywanejCiezarowki = CiezarowkaWjechala.pidProcesu; // Zapisujemy PID dla SIGUSR1
 
+        // Czekamy aż ciężarówka się załaduje i odjedzie
         while (recive_message(kolejkaKomunikatow, &CiezarowkaOdjechala, 7, 0))
         {
             if (!PracaTrwa)
@@ -55,11 +68,14 @@ int main()
             continue;
         }
     }
+    // Wysyłamy sygnał zakończenia do wszystkich procesów
     kill(-(PracownicyGotowi.pidProcesu), SIGUSR2);
     kill(-(CiezarowkiGotowe.pidProcesu), SIGUSR2);
+    // Czekamy na potwierdzenie zakończenia
     recive_message(kolejkaKomunikatow, &PracownicySkonczyliPrace, 3, 0);
     recive_message(kolejkaKomunikatow, &CiezarowkiSkonczylyPrace, 4, 0);
 
+    // Sprzątanie zasobów IPC
     delete_message_queue(kolejkaKomunikatow);
     detach_shared_memory(tasma, sharedMemoryID);
     free_semafor(semaforTasmy);

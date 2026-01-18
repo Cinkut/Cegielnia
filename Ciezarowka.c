@@ -4,19 +4,21 @@
 #include "Funkcje/FunkcjeSemafory.h"
 #include "Funkcje/FunkcjeObslugiTasmy.h"
 
-
+// Flaga czy trwa załadunek
 static volatile sig_atomic_t ZaladunekTrwa = 0;
+// Flaga czy ciężarówka pracuje
 static volatile sig_atomic_t PracaTrwa = 1;
 struct message CiezarowkaMozeWjechac = { .mtype = 5 };
 struct message CiezarowkaWjechala = { .mtype = 6 };
 struct message CiezarowkaOdjechala = { .mtype = 7 };
 
-
+// Obsługa SIGUSR1 - odjedź z niepełnym ładunkiem
 void sygnalDyspozytoraJeden_handler(int singal)
 {
     ZaladunekTrwa = 0;
 }
 
+// Obsługa SIGUSR2 - zakończ pracę
 void sygnalDyspozytoraDwa_handler(int signal)
 {
     PracaTrwa = 0;
@@ -25,17 +27,21 @@ void sygnalDyspozytoraDwa_handler(int signal)
 
 int main()
 {
+    // Łączenie się z kolejką komunikatów
     int kolejkaKomunikatow = create_message_queue(".", 'A', IPC_CREAT | 0600);
     CiezarowkaWjechala.pidProcesu = getpid();
+    // Podłączenie do pamięci dzielonej (taśma)
     int sharedMemoryID = create_shared_memory(".", 'B', K * sizeof(int), IPC_CREAT | 0600);
     int* tasma = (int*)attach_shared_memory(sharedMemoryID, NULL, 0);
+    // Podłączenie do semafora taśmy
     int semaforTasmy = create_semafor(".", 'C', 1, IPC_CREAT | 0600);
-    int kontenerCiezarowki[C];
+    int kontenerCiezarowki[C]; // Tablica przechowująca załadowane cegły
 
     signal(SIGUSR1, sygnalDyspozytoraJeden_handler);
 
     while (PracaTrwa)
     {
+        // Czekamy na zezwolenie wjazdu od dyspozytora
         while (recive_message(kolejkaKomunikatow, &CiezarowkaMozeWjechac, 5, 0))
             if (!PracaTrwa)
                 break;
@@ -43,16 +49,20 @@ int main()
         printf("\033[1;32m[%d] Ciężarówka ~ Wjeżdżam.\033[0m\n", getpid());
         ZaladunekTrwa = 1;
         int miejsceKolejnejCeglyWkontenerze = 0;
-        send_message(kolejkaKomunikatow, &CiezarowkaWjechala, 0);
+        send_message(kolejkaKomunikatow, &CiezarowkaWjechala, 0); // Potwierdzamy wjazd
 
+        // Proces załadunku cegieł z taśmy
         while (ZaladunekTrwa)
         {
+            // Czekamy na dostęp do taśmy (wait na semaforze)
             while (wait_semafor(semaforTasmy, 0, 0))
             if (!PracaTrwa)
                 break;
             
+            // Sciągamy wszystkie cegły z końca taśmy
             while (czyJestCoSciagacZtasmy(tasma, K))
             {
+		    // Sprawdzamy czy ciężarówka pełna
 		    if(miejsceKolejnejCeglyWkontenerze >= C){
 			    ZaladunekTrwa=0;
 			    break;
@@ -62,6 +72,7 @@ int main()
                 printf("\033[1;32m[%d] Ciezarowka ~ Załadowano cegłe o masie %d.\033[0m\n", getpid(), kontenerCiezarowki[miejsceKolejnejCeglyWkontenerze]);
                 miejsceKolejnejCeglyWkontenerze++;
             }
+            // Zwalniamy semafor taśmy
             while(signal_semafor(semaforTasmy, 0, 0))
                 if(!PracaTrwa)
                     break;
@@ -69,7 +80,7 @@ int main()
         printf("\033[1;32m[%d] Ciężarówka ~ Odjeżdżam.\033[0m\n", getpid());
         send_message(kolejkaKomunikatow, &CiezarowkaOdjechala, 0);
 
-        sleep(T);       // Rozwozenie Cegieł
+        sleep(T); // Rozwozenie cegieł
         printf("\033[1;32m[%d] Ciężarówka ~ Rozwiozłam cegły.\033[0m\n", getpid());
         
     }
