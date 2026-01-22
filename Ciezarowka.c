@@ -52,30 +52,31 @@ int main()
         send_message(kolejkaKomunikatow, &CiezarowkaWjechala, 0); // Potwierdzamy wjazd
 
         // Proces załadunku cegieł z taśmy
-        while (ZaladunekTrwa)
+        while (ZaladunekTrwa && PracaTrwa)
         {
-            // Czekamy na dostęp do taśmy (wait na semaforze)
-            while (wait_semafor(semaforTasmy, 0, SEM_UNDO))
-            if (!PracaTrwa)
-                break;
-            
-            // Sciągamy wszystkie cegły z końca taśmy
-            while (czyJestCoSciagacZtasmy(tasma, K))
+            // Próbujemy zdobyć semafor (nieblokująco z IPC_NOWAIT)
+            if (wait_semafor(semaforTasmy, 0, SEM_UNDO | IPC_NOWAIT) == 0)
             {
-		    // Sprawdzamy czy ciężarówka pełna
-		    if(miejsceKolejnejCeglyWkontenerze >= C){
-			    ZaladunekTrwa=0;
-			    break;
-		    }
+                // Mamy semafor - ściągamy cegły z taśmy
+                while (czyJestCoSciagacZtasmy(tasma, K))
+                {
+                    // Sprawdzamy czy ciężarówka pełna
+                    if (miejsceKolejnejCeglyWkontenerze >= C) {
+                        ZaladunekTrwa = 0;
+                        break;
+                    }
 
-                kontenerCiezarowki[miejsceKolejnejCeglyWkontenerze] = sciagnijCegle(tasma, K);
-                printf("\033[1;32m[%d] Ciezarowka ~ Załadowano cegłe o masie %d.\033[0m\n", getpid(), kontenerCiezarowki[miejsceKolejnejCeglyWkontenerze]);
-                miejsceKolejnejCeglyWkontenerze++;
+                    kontenerCiezarowki[miejsceKolejnejCeglyWkontenerze] = sciagnijCegle(tasma, K);
+                    printf("\033[1;32m[%d] Ciezarowka ~ Załadowano cegłe o masie %d.\033[0m\n", getpid(), kontenerCiezarowki[miejsceKolejnejCeglyWkontenerze]);
+                    miejsceKolejnejCeglyWkontenerze++;
+                }
+                // Zwalniamy semafor taśmy
+                signal_semafor(semaforTasmy, 0, SEM_UNDO);
             }
-            // Zwalniamy semafor taśmy
-            while(signal_semafor(semaforTasmy, 0, SEM_UNDO))
-                if(!PracaTrwa)
-                    break;
+            
+            // Krótka przerwa przed ponowną próbą (unikamy busy-waiting)
+            if (ZaladunekTrwa && PracaTrwa)
+                usleep(10000); // 10ms
         }
         printf("\033[1;32m[%d] Ciężarówka ~ Odjeżdżam.\033[0m\n", getpid());
         send_message(kolejkaKomunikatow, &CiezarowkaOdjechala, 0);

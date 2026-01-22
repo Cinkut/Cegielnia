@@ -26,22 +26,27 @@ int main()
 
     while (PracaTrwa)
     {
-        // Czekamy na dostęp do taśmy
-        while (wait_semafor(semaforTasmy, 0, SEM_UNDO))
-            if (!PracaTrwa)
-                break;
-            
-        // Sprawdzamy czy można wrzucić cegłę (miejsce i udźwig)
-        if (sprawdzCzyMoznaWrzucicCegle(tasma, K, MasaCegly, M))
+        int wrzuconoCegle = 0;
+        
+        // Próbujemy zdobyć semafor (nieblokująco z IPC_NOWAIT)
+        if (wait_semafor(semaforTasmy, 0, SEM_UNDO | IPC_NOWAIT) == 0)
         {
-            wrzucCegleNaTasme(tasma, K, MasaCegly);
-            printf("\033[1;34m[%d] P3 ~ Wrzuciłem cegłe o masie %dkg na taśme.\033[0m\n", getpid(), MasaCegly);
-            sleep(T1); // Czas produkcji kolejnej cegły
+            // Mamy semafor - sprawdzamy czy można wrzucić cegłę
+            if (sprawdzCzyMoznaWrzucicCegle(tasma, K, MasaCegly, M))
+            {
+                wrzucCegleNaTasme(tasma, K, MasaCegly);
+                printf("\033[1;34m[%d] P3 ~ Wrzuciłem cegłe o masie %dkg na taśme.\033[0m\n", getpid(), MasaCegly);
+                wrzuconoCegle = 1;
+            }
+            // Zwalniamy semafor
+            signal_semafor(semaforTasmy, 0, SEM_UNDO);
         }
-        // Zwalniamy semafor
-        while(signal_semafor(semaforTasmy, 0, SEM_UNDO))
-            if(!PracaTrwa)
-                break;
+        
+        // Czas produkcji kolejnej cegły (poza sekcją krytyczną!)
+        if (wrzuconoCegle)
+            sleep(T1);
+        else
+            usleep(10000); // 10ms przerwy przed ponowną próbą
     }
     printf("\033[1;34m[%d] P3 ~ Kończę pracę na dziś.\033[0m\n", getpid());
     return 0;
