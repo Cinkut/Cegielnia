@@ -55,7 +55,7 @@ int main()
         while (ZaladunekTrwa)
         {
             // Czekamy na dostęp do taśmy (wait na semaforze)
-            while (wait_semafor(semaforTasmy, 0, 0))
+            while (wait_semafor(semaforTasmy, 0, SEM_UNDO))
             if (!PracaTrwa)
                 break;
             
@@ -73,7 +73,7 @@ int main()
                 miejsceKolejnejCeglyWkontenerze++;
             }
             // Zwalniamy semafor taśmy
-            while(signal_semafor(semaforTasmy, 0, 0))
+            while(signal_semafor(semaforTasmy, 0, SEM_UNDO))
                 if(!PracaTrwa)
                     break;
         }

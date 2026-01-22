@@ -27,7 +27,7 @@ int main()
     while (PracaTrwa)
     {
         // Czekamy na dostęp do taśmy
-        while (wait_semafor(semaforTasmy, 0, 0))
+        while (wait_semafor(semaforTasmy, 0, SEM_UNDO))
             if (!PracaTrwa)
                 break;
             
@@ -39,7 +39,9 @@ int main()
             sleep(T1); // Czas produkcji kolejnej cegły
         }
         // Zwalniamy semafor
-        signal_semafor(semaforTasmy, 0, 0);
+        while(signal_semafor(semaforTasmy, 0, SEM_UNDO))
+            if(!PracaTrwa)
+                break;
     }
     printf("\033[1;34m[%d] P2 ~ Kończę pracę na dziś.\033[0m\n", getpid());
     return 0;

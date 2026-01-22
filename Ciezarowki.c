@@ -17,7 +17,6 @@ void* collectZombie(void *arg)
 	}
 }
 
-// Pusta obsługa sygnału SIGUSR2
 void ignore_signal(int sig) 
 {
     // Nic nie rób
